@@ -1,13 +1,13 @@
+import Dashboard from './components/Dashboard';
+import Topbar from './components/Topbar';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-        </p>
-      </header>
-    </div>
-  );
+    return (
+        <div>
+            <Topbar />
+            <Dashboard />
+        </div>
+    );
 }
 
 export default App;
