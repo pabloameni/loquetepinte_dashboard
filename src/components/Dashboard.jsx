@@ -54,10 +54,10 @@ export default function Dashboard(){
             const products = await fetch(API_URL + "/api/products").then(res => res.json());
             const users    = await fetch(API_URL + "/api/users").then(res => res.json());
 
-            const lastProd = products.products.sort((u1, u2) => u1.id - u2.id)[0];
+            const lastProd = products.products.sort((u1, u2) => u2.id - u1.id)[0];
             const prodDetails = await fetch(lastProd.detail).then(res => res.json());
 
-            const lastUser = users.users.sort((u1, u2) => u1.id - u2.id)[0];
+            const lastUser = users.users.sort((u1, u2) => u2.id - u1.id)[0];
             const userDetails = await fetch(lastUser.detail).then(res => res.json());
 
             setProdData(makeDataProducts(products.products));
@@ -88,9 +88,9 @@ export default function Dashboard(){
             </Col>
         </Row>
         <h4>Últimos usuarios creados</h4>
-        <DataTable data={usersData.sort((u1, u2) => u2.ID - u1.ID).slice(0, 5)} />
+        <DataTable data={usersData.sort((u1, u2) => u1.ID - u2.ID).slice(0, 5)} />
         <h4 className='my-3'>Productos</h4>
-        <DataTable data={prodData} />
+        <DataTable data={prodData.sort((u1, u2) => u1.ID -u2.ID).slice(0, 5)} />
         </Container>
     );
 }
