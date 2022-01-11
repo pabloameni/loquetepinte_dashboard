@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
+import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row'
 
-import Cards from './Cards';
+import Stats from './Stats';
 import DataTable from './DataTable';
+import ProductResume from './ProductResume';
+import UserResume from './UserResume';
 
-const makeDataCards = (prodData, usersData) => [
+const API_URL = process.env.REACT_APP_API_URL;
+
+const makeDataStats = (prodData, usersData) => [
     {
         header: 'Cantidad de productos',
         text: prodData.count
@@ -16,7 +22,7 @@ const makeDataCards = (prodData, usersData) => [
     {
         header: 'Cantidad de categorias',
         text: Object.keys(prodData.countByCategory).length
-    },
+    }
 ];
 
 const makeDataUsers = userData => userData.map(user => ({
@@ -24,22 +30,42 @@ const makeDataUsers = userData => userData.map(user => ({
     Nombre: user.first_name,
     Apellido: user.last_name,
     Email: user.email,
+    URL: user.detail
 }));
 
+const makeDataProducts = prodData => prodData.map(prod => ({
+    ID: prod.id,
+    Nombre: prod.name,
+    Descripción: prod.description,
+    URL: prod.detail
+}))
 
 export default function Dashboard(){
-    const [ cardsData, setCardsData ] = useState([]);
+    const [ statsData, setStatsData ] = useState([]);
     const [ usersData, setUsersData ] = useState([]);
-    const [ apiData, setApiData ] = useState({});
-;
+    const [ prodData, setProdData ] = useState([]);
+    const [ productsList, setProductsList ] = useState({});
+    const [ lastProdDetails, setLastProdDetails ] = useState({});
+    const [ lastUserDetails, setLastUserDetails ] = useState({});
+
 
     const fetchApi = async () => {
         try {
-            const products = await fetch("http://localhost:3003/api/products").then(res => res.json());
-            const users    = await fetch("http://localhost:3003/api/users").then(res => res.json());
-            setApiData(products);
+            const products = await fetch(API_URL + "/api/products").then(res => res.json());
+            const users    = await fetch(API_URL + "/api/users").then(res => res.json());
+
+            const lastProd = products.products.sort((u1, u2) => u1.id - u2.id)[0];
+            const prodDetails = await fetch(lastProd.detail).then(res => res.json());
+
+            const lastUser = users.users.sort((u1, u2) => u1.id - u2.id)[0];
+            const userDetails = await fetch(lastUser.detail).then(res => res.json());
+
+            setProdData(makeDataProducts(products.products));
+            setProductsList(products);
             setUsersData(makeDataUsers(users.users));
-            setCardsData(makeDataCards(products, users));
+            setStatsData(makeDataStats(products, users));
+            setLastProdDetails(prodDetails);
+            setLastUserDetails(userDetails);
         } catch (error) {
             console.log(error);
         }
@@ -52,9 +78,19 @@ export default function Dashboard(){
     return (
         <Container>
         <h1 className="my-3 text-center">Dashboard</h1>
-        <Cards data={cardsData} />
+        <Stats data={statsData} categories={productsList.countByCategory} />
+        <Row className='my-4'>
+            <Col>
+                <ProductResume product={lastProdDetails}/>
+            </Col>
+            <Col>
+                <UserResume user={lastUserDetails}/>
+            </Col>
+        </Row>
         <h4>Últimos usuarios creados</h4>
         <DataTable data={usersData.sort((u1, u2) => u2.ID - u1.ID).slice(0, 5)} />
+        <h4 className='my-3'>Productos</h4>
+        <DataTable data={prodData} />
         </Container>
     );
 }
