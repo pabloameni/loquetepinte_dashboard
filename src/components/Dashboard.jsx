@@ -52,10 +52,10 @@ export default function Dashboard(){
             const products = await fetch(API_URL + "/api/products").then(res => res.json());
             const users    = await fetch(API_URL + "/api/users").then(res => res.json());
 
-            const lastProd = products.products.sort((u1, u2) => u1.id - u2.id)[0];
+            const lastProd = products.products.sort((u1, u2) => u2.id - u1.id)[0];
             const prodDetails = await fetch(lastProd.detail).then(res => res.json());
 
-            const lastUser = users.users.sort((u1, u2) => u1.id - u2.id)[0];
+            const lastUser = users.users.sort((u1, u2) => u2.id - u1.id)[0];
             const userDetails = await fetch(lastUser.detail).then(res => res.json());
 
             setProductsList(products);
