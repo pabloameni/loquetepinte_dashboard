@@ -25,25 +25,23 @@ const makeDataStats = (prodData, usersData) => [
     }
 ];
 
-const makeDataUsers = userData => userData.map(user => ({
+const makeDataUsers = Y => { return Y.users.map(user => ({
     ID: user.id,
     Nombre: user.first_name,
     Apellido: user.last_name,
     Email: user.email,
     URL: user.detail
-}));
+}))};
 
-const makeDataProducts = prodData => prodData.map(prod => ({
+const makeDataProducts = X => { return X.products.map(prod => ({
     ID: prod.id,
     Nombre: prod.name,
     Descripción: prod.description,
     URL: prod.detail
-}))
+}))};
 
 export default function Dashboard(){
     const [ statsData, setStatsData ] = useState([]);
-    const [ usersData, setUsersData ] = useState([]);
-    const [ prodData, setProdData ] = useState([]);
     const [ productsList, setProductsList ] = useState({});
     const [ lastProdDetails, setLastProdDetails ] = useState({});
     const [ lastUserDetails, setLastUserDetails ] = useState({});
@@ -60,9 +58,7 @@ export default function Dashboard(){
             const lastUser = users.users.sort((u1, u2) => u1.id - u2.id)[0];
             const userDetails = await fetch(lastUser.detail).then(res => res.json());
 
-            setProdData(makeDataProducts(products.products));
             setProductsList(products);
-            setUsersData(makeDataUsers(users.users));
             setStatsData(makeDataStats(products, users));
             setLastProdDetails(prodDetails);
             setLastUserDetails(userDetails);
@@ -88,9 +84,9 @@ export default function Dashboard(){
             </Col>
         </Row>
         <h4>Últimos usuarios creados</h4>
-        <DataTable data={usersData.sort((u1, u2) => u2.ID - u1.ID).slice(0, 5)} />
+        <DataTable endpoint={API_URL + "/api/users?page=999999999&limit=5"} formatFunc={makeDataUsers} />
         <h4 className='my-3'>Productos</h4>
-        <DataTable data={prodData} />
+        <DataTable endpoint={API_URL + "/api/products?page=1"} formatFunc={makeDataProducts} />
         </Container>
     );
 }

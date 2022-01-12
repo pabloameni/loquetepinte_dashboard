@@ -1,13 +1,16 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal  from 'react-bootstrap/Modal';
+import Pagination from 'react-bootstrap/Pagination';
 import Table  from 'react-bootstrap/Table';
 
 import UserDetails from './UserDetails';
 import ProductDetails from './ProductDetails';
 
-export default function DataTable({ data }) {
+export default function DataTable({ endpoint, formatFunc }) {
+    const [ data, setData ] = useState([]);
+    const [ pagination, setPagination ] = useState(null);
     const [ showModal, setShowModal ] = useState(false);
     const [ dataDetails, setDataDetails ] = useState([]);
 
@@ -21,10 +24,24 @@ export default function DataTable({ data }) {
             .catch(error => console.log(error))
     }
 
+    const fetchData = url => {
+        fetch(url)
+            .then(res => res.json())
+            .then(dataJson => {
+                setData(formatFunc(dataJson));
+                setPagination(dataJson.links);
+            })
+            .catch(error => console.log(error))
+    }
+
     const closeModal = () => setShowModal(false);
 
+    useEffect(() => {
+        fetchData(endpoint);
+    }, []);
+
     return data ? (
-        <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+        <div>
             <Modal show={showModal} onHide={closeModal}>
                 <Modal.Body>
                     {
@@ -39,6 +56,26 @@ export default function DataTable({ data }) {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            { pagination && (
+             <Pagination>
+                <Pagination.First
+                    disabled={!pagination.prev}
+                    onClick={()=>fetchData(pagination.first)}
+                />
+                <Pagination.Prev
+                    disabled={!pagination.prev}
+                    onClick={()=>fetchData(pagination.prev)}
+                />
+                <Pagination.Next
+                    disabled={!pagination.next}
+                    onClick={()=>fetchData(pagination.next)}
+                />
+                <Pagination.Last
+                    disabled={!pagination.next}
+                    onClick={()=>fetchData(pagination.last)}
+                />
+            </Pagination>
+            )}
             <Table bordered hover className='text-center' responsive="sm">
                 <thead>
                     <tr>
