@@ -90,7 +90,7 @@ export default function Dashboard(){
         <h4>Últimos usuarios creados</h4>
         <DataTable data={usersData.sort((u1, u2) => u1.ID - u2.ID).slice(0, 5)} />
         <h4 className='my-3'>Productos</h4>
-        <DataTable data={prodData.sort((u1, u2) => u1.ID -u2.ID).slice(0, 5)} />
+        <DataTable data={prodData.sort((u1, u2) => u1.ID -u2.ID)} />
         </Container>
     );
 }
